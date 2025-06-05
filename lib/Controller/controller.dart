@@ -4,6 +4,27 @@ import 'package:notificator/Controller/readFile.dart';
 import 'package:notificator/main.dart';
 
 class Notificator {
+  static final Notificator _instance = Notificator._internal();
+
+  String _notificationTitle = "Reminder";
+  int _delaySeconds = 60;
+
+  factory Notificator() {
+    return _instance;
+  }
+
+  Notificator._internal();
+
+  String get notificationTitle => _notificationTitle;
+  void setNotificationTitle(String title) {
+    _notificationTitle = title;
+  }
+
+  int get delaySeconds => _delaySeconds;
+  void setdelaySeconds(int seconds) {
+    _delaySeconds = seconds;
+  }
+
   void runNotificationLoop(String filePath) async {
     final random = Random();
     try {
@@ -12,18 +33,15 @@ class Notificator {
       if (lines.isNotEmpty) {
         final line = lines[random.nextInt(lines.length)];
 
-        showNotification(
-          "﴿ وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾",
-          line,
-        );
+        showNotification(_notificationTitle, line);
       } else {
         showNotification(
-          "﴿ وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ﴾",
+          _notificationTitle,
           "No Data inside file. Add some Lines",
         );
       }
     } catch (e) {
-      showNotification("Error", ('Error: $e'));
+      showNotification("Notification Error", ('Error: $e'));
     }
   }
 

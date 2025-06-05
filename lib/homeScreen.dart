@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notificator/Controller/controller.dart';
 import 'package:notificator/Controller/readFile.dart';
+import 'package:notificator/settingScreen.dart';
 
 class homeScreen extends StatefulWidget {
   @override
@@ -8,24 +9,33 @@ class homeScreen extends StatefulWidget {
 }
 
 class _homeScreenState extends State<homeScreen> {
-  TextEditingController delayController = TextEditingController();
   bool repeat = false;
+  final notificator = Notificator();
+
+  Future<void> startNotificationLoop() async {
+    notificator.runNotificationLoop('Assets/Notificator.txt');
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = Color(0xFF6C63FF);
     final Color backgroundColor = Color(0xFFF6F5FA);
 
-    Future<void> startNotificationLoop() async {
-      Notificator().runNotificationLoop('Assets/Notificator.txt');
-    }
-
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (context) => settingScreen()));
+          },
+          icon: Icon(Icons.settings),
+        ),
+      ),
       backgroundColor: backgroundColor,
       body: Center(
         child: Container(
-          padding: const EdgeInsets.all(24),
-          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
@@ -56,36 +66,16 @@ class _homeScreenState extends State<homeScreen> {
                 ),
               ),
 
-              // Delay Input
-              TextField(
-                controller: delayController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  suffix: Text("Min"),
-                  labelText: 'Enter Delay Number',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: primaryColor),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
               const SizedBox(height: 10),
-
               // Start/Stop Button
               ElevatedButton(
                 onPressed: () async {
                   setState(() => repeat = !repeat);
                   while (repeat) {
                     await startNotificationLoop();
-                    if (delayController.text.trim().isEmpty) {
-                      delayController.text = "1";
-                    }
-                    final delayMinutes =
-                        int.tryParse(delayController.text) ?? 1;
-                    await Future.delayed(Duration(minutes: delayMinutes));
+                    await Future.delayed(
+                      Duration(seconds: notificator.delaySeconds),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
