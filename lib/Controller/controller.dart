@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notificator/Controller/readFile.dart';
 import 'package:notificator/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Notificator {
   static final Notificator _instance = Notificator._internal();
@@ -16,13 +17,23 @@ class Notificator {
   Notificator._internal();
 
   String get notificationTitle => _notificationTitle;
-  void setNotificationTitle(String title) {
+  Future<void> setNotificationTitle(String title) async {
     _notificationTitle = title;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("notificationTitle", title);
   }
 
   int get delaySeconds => _delaySeconds;
-  void setdelaySeconds(int seconds) {
+  Future<void> setDelaySeconds(int seconds) async {
     _delaySeconds = seconds;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt("delaySeconds", seconds);
+  }
+
+  Future<void> loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    _notificationTitle = prefs.getString("notificationTitle") ?? "Reminder";
+    _delaySeconds = prefs.getInt("delaySeconds") ?? 60;
   }
 
   void runNotificationLoop(String filePath) async {

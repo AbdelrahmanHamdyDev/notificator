@@ -1,16 +1,31 @@
 import 'dart:io';
+import 'package:notificator/Controller/controller.dart';
+import 'package:notificator/Controller/readFile.dart';
 import 'package:window_size/window_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notificator/homeScreen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+Future<String> copyAssetToFile(String asset, String filename) async {
+  final byteData = await rootBundle.load(asset);
+  final file = File(
+    '${(await getApplicationSupportDirectory()).path}/$filename',
+  );
+  await file.writeAsBytes(byteData.buffer.asUint8List());
+  return file.path;
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final notificator = Notificator();
+  await notificator.loadPreferences();
   await windowManager.ensureInitialized();
   const initializationSettings = InitializationSettings(
     windows: WindowsInitializationSettings(
@@ -45,13 +60,17 @@ void main() async {
   });
 
   if (Platform.isWindows) {
-    await trayManager.setIcon('Assets/AppIcon.ico');
+    final iconPath = await copyAssetToFile('Assets/AppIcon.ico', 'AppIcon.ico');
+    await trayManager.setIcon(iconPath);
   } else {
-    await trayManager.setIcon('Assets/AppIcon.png');
+    final iconPath = await copyAssetToFile('Assets/AppIcon.png', 'AppIcon.png');
+    await trayManager.setIcon(iconPath);
   }
-  trayManager.addListener(MyTrayListener());
 
-  runApp(MaterialApp(home: homeScreen()));
+  trayManager.addListener(MyTrayListener());
+  final txtPath = await FileController().prepareTxtFile();
+
+  runApp(MaterialApp(home: homeScreen(txtPath: txtPath)));
 }
 
 class MyTrayListener with TrayListener {

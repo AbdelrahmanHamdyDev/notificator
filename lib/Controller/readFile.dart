@@ -1,6 +1,27 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class FileController {
+  Future<String> prepareTxtFile() async {
+    final dir = await getApplicationSupportDirectory();
+    final file = File('${dir.path}/Notificator.txt');
+
+    if (!await file.exists()) {
+      await file.writeAsString(
+        "Welcome to Notificator! Add your reminders here.",
+      );
+    } else {
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) {
+        await file.writeAsString(
+          "Welcome to Notificator! Add your reminders here.",
+        );
+      }
+    }
+
+    return file.path;
+  }
+
   Future<List<String>> readLine(String filePath) async {
     final file = File(filePath);
     if (!await file.exists()) {

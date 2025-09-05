@@ -4,6 +4,10 @@ import 'package:notificator/Controller/readFile.dart';
 import 'package:notificator/settingScreen.dart';
 
 class homeScreen extends StatefulWidget {
+  const homeScreen({required this.txtPath});
+
+  final String txtPath;
+
   @override
   State<homeScreen> createState() => _homeScreenState();
 }
@@ -13,7 +17,7 @@ class _homeScreenState extends State<homeScreen> {
   final notificator = Notificator();
 
   Future<void> startNotificationLoop() async {
-    notificator.runNotificationLoop('Assets/Notificator.txt');
+    notificator.runNotificationLoop(widget.txtPath);
   }
 
   @override
@@ -54,7 +58,7 @@ class _homeScreenState extends State<homeScreen> {
               // Open Txt File Button
               ElevatedButton(
                 onPressed: () {
-                  FileController().openTxtFile("Assets/Notificator.txt");
+                  FileController().openTxtFile(widget.txtPath);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor.withValues(alpha: 0.1),

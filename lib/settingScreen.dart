@@ -83,7 +83,7 @@ class _settingScreenState extends State<settingScreen> {
               ElevatedButton(
                 onPressed: () {
                   notificator.setNotificationTitle(titleController.text);
-                  notificator.setdelaySeconds(int.parse(delayController.text));
+                  notificator.setDelaySeconds(int.parse(delayController.text));
                   Navigator.of(context).pop();
                 },
                 child: Text("Done"),
